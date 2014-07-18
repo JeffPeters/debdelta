@@ -1,9 +1,9 @@
-debdelta (0.39+squeeze1) unstable; urgency=low
+debdelta (0.39+squeeze2) oldstable-proposed-updates; urgency=low
 
   * new GPG keys
   * add Debian Backports to sources.conf
 
- --
+ -- A Mennucc1 <mennucc1@debian.org>  Fri, 18 Jul 2014 14:55:40 +0200
 
 debdelta (0.39trl) unstable; urgency=high
   
