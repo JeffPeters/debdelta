@@ -1,6 +1,7 @@
 debdelta (0.39+squeeze1) unstable; urgency=low
 
   * new GPG keys
+  * add Debian Backports to sources.conf
 
  --
 
