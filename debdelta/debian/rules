@@ -68,6 +68,9 @@ binary-indep:	checkroot build
 	chown -R root:root $(D2)
 	find debian/debdelta-doc -newermt '$(BUILD_DATE)' -print0 | \
 		xargs -0r touch --no-dereference --date='$(BUILD_DATE)'
+	# Ensure correct mode for files for reproducible builds
+	chmod -c 0755 $(docdir2doc)/html/
+	chmod -c 0644 $(docdir2doc)/html/*
 	dpkg-deb --build $(D2) ..
 
 binary-arch:	checkroot build
@@ -117,6 +120,8 @@ binary-arch:	checkroot build
 	chown -R root:root $(D)
 	find debian/debdelta -newermt '$(BUILD_DATE)' -print0 | \
 		xargs -0r touch --no-dereference --date='$(BUILD_DATE)'
+	# Ensure correct mode for files for reproducible builds
+	chmod -c 0644 $(D)/usr/share/debdelta/*.patch
 	dpkg-deb --build $(D) ..
 
 define checkdir
