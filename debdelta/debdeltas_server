@@ -40,6 +40,8 @@ from os.path import join
 from copy import copy
 import time, string, shutil, pickle, lockfile, logging, logging.handlers
 
+import gpghelper
+
 try:
     import daemon
 except ImportError:
@@ -53,6 +55,12 @@ except ImportError:
 
 logging.basicConfig(format='%(asctime)s %(levelname)-7s %(funcName)s %(message)s', level=logging.INFO)
 logger=logging.getLogger(__name__) # this will be changed later on
+
+try:
+    import gnupg
+except ImportError:
+    gnupg = None
+    logger.error('Please install "python3-gnupg"')
 
 if os.name == 'posix' and sys.version_info[0] < 3:
     try:
@@ -189,6 +197,19 @@ import debdelta
 
 #### configuration 
 exec(compile(open(config_abspath, "rb").read(), config_abspath, 'exec'))
+
+if gnupg_key == 'AUTO' and gnupg is not None:
+    gnupg_key = gpghelper.select_secret_key_by_date (gnupg_home, time.time() + (gnupg_expiration_margin * 24 * 3600) )
+    if gnupg_key is None:
+        gnupg_key = gpghelper.select_secret_key_by_date (gnupg_home, time.time()  )
+        if gnupg_key is None:
+            logger.critical('No GPG secret key is valid for signing ')
+            sys.exit(1)
+        else:
+            logger.warning('No GPG secret key is valid for the next %d days , you should create a new one', gnupg_expiration_margin)
+            logger.info('Autoselected GPG key %r ', gnupg_key)
+    else:
+        logger.info('Autoselected GPG key %r ', gnupg_key)
 
 tmp_dir=tmp_dir.rstrip('/')
 
