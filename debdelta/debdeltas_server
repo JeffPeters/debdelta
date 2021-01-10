@@ -29,6 +29,8 @@ Possible commands:
  peek_queue                      print the first item in the queue of deltas
  
  publish                       update html stats, move stuff from transit to server
+ 
+ create_key YEAR               create GPG key for year YEAR
 """
 
 #Copyright (c) 2013-2020 A. Mennucci
@@ -1246,6 +1248,11 @@ elif args[0] == 'start_gpg_agent':
 
 elif args[0] == 'test_gpg_signing':
     return_code=test_gpg_signing()
+
+elif args[0] == 'create_key':
+    year = int(args[1])
+    key = gpghelper.create_key(gnupg_home, year)
+    return_code = key is not None
 
 elif args[0] == 'publish':
     publish=Publisher(publisher)
