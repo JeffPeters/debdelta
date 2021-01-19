@@ -1,3 +1,12 @@
+debdelta (0.66) unstable; urgency=medium
+
+  * thanks Calum for NMU  (Closes: #962203, #954420)
+  * many fixes for Python3 compatibility
+  * add 2023 signing key
+  * server code autoselects oldest non-expired gpg key
+
+ -- A Mennucc1 <mennucc1@debian.org>  Wed, 20 Jan 2021 08:31:11 +0100
+
 debdelta (0.65+nmu1) unstable; urgency=high
 
   * Non-maintainer upload.
