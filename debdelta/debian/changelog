@@ -1,3 +1,10 @@
+debdelta (0.67) unstable; urgency=medium
+
+  * Bug fix: "Ensure correct mode of html documentation and shipped
+    patches.", thanks to Vagrant Cascadian (Closes: #970893).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sat, 23 Jan 2021 21:15:27 +0100
+
 debdelta (0.66) unstable; urgency=medium
 
   * thanks Calum for NMU  (Closes: #962203, #954420)
