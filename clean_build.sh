@@ -8,6 +8,9 @@ set -e
 ## you can force the signing key as follows
 #KEY=-k0x57CCF4596A1353C2!
 
+## you can give this command options that will be passed to debuild
+## make sure that `-S` if present is the first option
+
 B=`dirname $0`
 
 cd $B
@@ -39,9 +42,11 @@ cp $B/debdelta/doc/html/* -t  $B/$D/debdelta/doc/html/
 
 
 #debuild
-if test "$1" = source ; then
+if test "$1" = "-S" ; then
     cd  $B/$D/debdelta
-    dpkg-buildpackage --build=source  $KEY
+    ## this chooses the wrong key see Bug #980909
+    #dpkg-buildpackage --build=source  $KEY
+    debuild  $KEY "$@"
 elif which pdebuild ; then
     cd  $B/$D/debdelta
     pdebuild "$@"
