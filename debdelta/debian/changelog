@@ -1,3 +1,9 @@
+debdelta (0.68) unstable; urgency=medium
+
+  * add 2027 signing key
+
+ --
+
 debdelta (0.67) unstable; urgency=medium
 
   * Bug fix: "Ensure correct mode of html documentation and shipped
