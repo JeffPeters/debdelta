@@ -153,7 +153,6 @@ class SQL_queue(object):
         except:
             connection.rollback() #cursor.executescript('rollback')
             raise
-        return x
     
     def iterate(self):
         "returns a cursor onto the database"
