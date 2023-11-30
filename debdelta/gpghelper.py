@@ -10,6 +10,10 @@ __doc__ = """Usage %s [GNUPGHOME] [COMMAND] [YEAR]
  
  test : tests some routines
  
+ list: list public keys
+ 
+ list-sec: list secret keys
+ 
  create : create a key for current year, or given year
 """ % sys.argv[0]
 
@@ -52,9 +56,13 @@ def select_secret_key_by_date(gnupghome ,now):
         return usable_keys[0][1]['keyid']
     else: return None
 
-def convert_time(j, v):
+def convert_time(j, v, now=None):
+    if now is None:
+        now = time.time()
     if j in ('expires','date'):
-        if 'T' not in v:
+        if not v:
+            v = 'NO DATE'
+        elif 'T' not in v:
             f = float(v)
             v = time.ctime(f)
             if f < now and j == 'expires':
@@ -63,10 +71,13 @@ def convert_time(j, v):
             logger.error('date format %r = %r unsupported',j,v)
     return v
 
-def list_keys():
+def list_keys(gnupghome, secret=False):
+    now = time.time()
+    gpg = gnupg.GPG(gnupghome=gnupghome)
+    private_keys = gpg.list_keys(secret = secret)
     for P in private_keys:
         print()
-        print('KEY %r CAN_SIGN %r' % (P['keyid'] , can_sign(P) ) )
+        print('KEY %r CAN_SIGN %r' % (P['keyid'] , key_can_sign(P, now) ) )
         for k in P:
             if k not in ('subkeys','subkey_info'):
                 v = convert_time(k, P[k])
@@ -74,7 +85,7 @@ def list_keys():
         SI = P.get('subkey_info',{})
         for k in SI:
             S = SI[k]
-            print(' SUBKEY %r CAN_SIGN %r' % (S['keyid'] , can_sign(S) ) )
+            print(' SUBKEY %r CAN_SIGN %r' % (S['keyid'] , key_can_sign(S, now) ) )
             for j in S:
                 v = convert_time(j, S[j])
                 print('    %r = %r'% (j,v))
@@ -157,6 +168,12 @@ if __name__ == '__main__':
         print('Usable key')
         print( select_secret_key_by_date(gnupghome , time.time() + (60 * 24 * 3600) ) )
     
+    if argv and argv[0] == 'list':
+        list_keys(gnupghome)
+    
+    if argv and argv[0] == 'list-sec':
+        list_keys(gnupghome, secret=True)
+        
     if argv and argv[0] == 'create':
         if len(argv)>1:
             year = int(argv[1])
