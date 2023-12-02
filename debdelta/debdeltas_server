@@ -159,7 +159,7 @@ def send_temp_out_as_mail(out):
                                ** Popen_as_text)
             p.wait()
             if p.returncode:
-                if logger: logger.warn('email failed, file is %r ', out.name)
+                if logger: logger.warning('email failed, file is %r ', out.name)
             else:
                 os.unlink(out.name)
         # else, do not delete the temp file
@@ -416,7 +416,7 @@ def backup_Packages():
     except Exception:
         logger.exception('(rm temporaries and reraise exception)')
         if os.path.isdir(tmpdir):
-            logger.warn('on exception, deleting tmp dir %r ', tmpdir)
+            logger.warning('on exception, deleting tmp dir %r ', tmpdir)
             shutil.rmtree(tmpdir)
         raise
     os.rename(tmpdir, join(backup_Packages_dir,now))
@@ -431,7 +431,7 @@ class Release_as_dict(object):
                         for z in debian_deb822.Release(open(a))[thehash] }
             self.filename=a
             if not self.rele:
-                logger.warn('Could not extract hashes %r from %r ', thehash, a)
+                logger.warning('Could not extract hashes %r from %r ', thehash, a)
         else:
             if a: logger.warning('file not found:'+repr(a))
             self.rele={}
@@ -505,14 +505,14 @@ def _backup_Packages(now, where):
             #save hash in companion file
             open(os.path.splitext(n_p)[0]+'.'+thehash,'w').write(new)
         elif NewRelease[m_d]:
-            logger.warn(' failed to get %r for %r from new Release %r' % (thehash,B,NewRelease[m_d].filename))
+            logger.warning(' failed to get %r for %r from new Release %r' % (thehash,B,NewRelease[m_d].filename))
         if oldwhere and new:
             o_p = join(oldwhere,fp)
             if os.path.isfile(o_p):
                 old=OldRelease[m_d].get(B)
                 if not old :
                     if OldRelease[m_d]:
-                        logger.warn(' failed to get %r for %r from old Release %r' % (thehash,B,OldRelease[m_d].filename))
+                        logger.warning(' failed to get %r for %r from old Release %r' % (thehash,B,OldRelease[m_d].filename))
                 elif old == new:
                     linked_p=True
                     logger.debug(' by Release os.link  %r %r ', o_p , n_p)
@@ -602,7 +602,7 @@ def iter_backups_for_deltas(bPd=backup_Packages_dir):
                             logger.debug(' skipping duplicate %s for %r',lb[bj],p)
                         bj = bj + 1
                 else:
-                    logger.warn(' missing %s for %r',lb[bj],p)
+                    logger.warning(' missing %s for %r',lb[bj],p)
                     bj = bj + 1
         
         if p[0][-8:]=='security':
@@ -617,7 +617,7 @@ def iter_backups_for_deltas(bPd=backup_Packages_dir):
                     logger.info('and on as well %r %r',b,a)
                     older.append((b,a))
                 else:
-                    logger.warn(' missing  %r %r',b,q)
+                    logger.warning(' missing  %r %r',b,q)
         # todo, for stable-updates we should also add stable
         if older:
             count = 0
@@ -654,7 +654,7 @@ class Compute_Priority(object):
         if  os.path.isfile(popcon_cache):
             self.popcon_dict=pickle.load(open(popcon_cache,'rb'))
         else:
-            logger.warn(' popcon_cache is unavailable ')
+            logger.warning(' popcon_cache is unavailable ')
             
     def __call__(self, old, new):
         " compute priority . A lower number is an higher priority (with 0 being highest priority)"
@@ -662,7 +662,7 @@ class Compute_Priority(object):
         m= old['Packages_file'][LiPa_enum.distribution]
         if m not in priority_for_mirrors and m not in self.warned:
             self.warned.append(m)
-            logger.warn('mirror %r not in configuration "priority_for_mirrors" ' % m)
+            logger.warning('mirror %r not in configuration "priority_for_mirrors" ' % m)
         return int(priority_for_mirrors.get(m,0.) +  \
                    priority_by_popcon * ( 1. - self.popcon_dict.get(old['Package'],0.)))
 
@@ -718,12 +718,12 @@ def set_environ_gpg_agent():
                 os.environ['GPG_AGENT_INFO']=gpg_agent_info
         else:
             # environment is unused for gnupg >= 2.1
-            logger.warn(' file not found: %r' % gnupg_agent_info_file)
+            logger.warning(' file not found: %r' % gnupg_agent_info_file)
     elif gnupg_agent_mode == False :
         if'GPG_AGENT_INFO' in os.environ:
             del os.environ['GPG_AGENT_INFO']
     else:
-        logger.warn("configuration variable 'gpg_agent_info' set to a strange value: "+repr(gnupg_agent_info))
+        logger.warning("configuration variable 'gpg_agent_info' set to a strange value: "+repr(gnupg_agent_info))
 
 def create_one_delta_simple():
     set_environ_gpg_agent()
@@ -738,7 +738,7 @@ def create_one_delta_simple():
     else:
         ret = debdelta.do_delta_and_test(* (x[2:6])) # <- skip id and priority
         if 0 < ret[0]: 
-            logger.warn('failed %r',  x[E.delta] )
+            logger.warning('failed %r',  x[E.delta] )
             #FIXME, REQUE
 
 worker_creates_deltas_lockname=join(lock_dir,'worker_creates_deltas')
@@ -763,9 +763,9 @@ def create_one_delta_from_queue(x, y, thesqldb):
             if x[E.ctime] < (now - max_queue_age * 24 * 3600):
                 logger.debug('queue item too old %r' ,  x[E.delta] )
             elif not os.path.isfile(x[E.old_name]):
-                logger.warn('missing old deb %r for %r' ,   x[E.old_name], x[E.delta])
+                logger.warning('missing old deb %r for %r' ,   x[E.old_name], x[E.delta])
             elif not os.path.isfile(x[E.new_name]):
-                logger.warn('missing new deb %r for %r' ,  x[E.new_name], x[E.delta])
+                logger.warning('missing new deb %r for %r' ,  x[E.new_name], x[E.delta])
             # check in server
             elif os.path.isfile(x[E.delta]):
                 logger.info('already available delta %r' ,  x[E.delta])
@@ -846,7 +846,7 @@ def _worker_creates_deltas(exit_when_queue_empty=False):
                         if os.path.exists(y[E.delta]): # do not append if the delta was too big
                             created.append(x[E.delta])
                     else:
-                        logger.warn('failed %r' , shortdelta)
+                        logger.warning('failed %r' , shortdelta)
                         # FIXME REQUEUE if r == 1 , in case recreate timestamp
                 append_to_sql_history(x, ret, E, thesqlhistory)
             if publish.poll() is not None and \
@@ -946,7 +946,7 @@ class Publisher(object):
         if not self.publisher:
             return
         if self.proc:
-            logger.warn(' publisher is already running, cannot run twice')
+            logger.warning(' publisher is already running, cannot run twice')
             return
         if os.path.isfile(publisher):
             logger.info('publish')
@@ -959,7 +959,7 @@ class Publisher(object):
             self.returncode=None
             return p
         else:
-            logger.warn(' does not exists: '+publisher)
+            logger.warning(' does not exists: '+publisher)
     def poll(self):
             if not self.proc:
                 return self.returncode
@@ -968,7 +968,7 @@ class Publisher(object):
             return self.returncode
     def wait(self):
             if not self.proc:
-                # no use warning here ... logger.warn(' publisher is not running')
+                # no use warning here ... logger.warning(' publisher is not running')
                 return self.returncode
             self.returncode=self.proc.wait()
             self._log_publishing()
@@ -1037,11 +1037,11 @@ def daemonize_maybe_mail(cmdname, cmd, *args, **kw):
             try:
                 cmd(*args, **kw)
             except SystemExit:
-                logger.warn('SystemExit from '+cmdname+' , output in '+out.name)
+                logger.warning('SystemExit from '+cmdname+' , output in '+out.name)
                 raise
             except Exception:
                 logger.exception(cmdname+'--daemonized')
-                logger.warn('output was left in '+out.name)
+                logger.warning('output was left in '+out.name)
                 raise
             logger.info('end '+cmdname)
         
@@ -1061,7 +1061,7 @@ def daemonize_maybe_mail(cmdname, cmd, *args, **kw):
             p.stdin.close()
             p.wait()
             if p.returncode:
-                logger.warn('email failed')
+                logger.warning('email failed')
         os.unlink(out.name)
     
     except SystemExit:
@@ -1125,13 +1125,13 @@ def start_gpg_agent_environ():
         gpg_agent_info=open(gnupg_agent_info_file).readline().strip().split('=')[-1]
     if gpg_agent_info:
         if not os.path.exists(gpg_agent_info.split(':')[0]):
-            logger.warn(' agent info is obsolete %r', gpg_agent_info)
+            logger.warning(' agent info is obsolete %r', gpg_agent_info)
             gpg_agent_info = None
     if gpg_agent_info:
         os.environ['GPG_AGENT_INFO']=gpg_agent_info
         r=subprocess.call(['gpg-agent'])
         if r:
-            logger.warn(' agent is not happy ')
+            logger.warning(' agent is not happy ')
             gpg_agent_info = None
             del os.environ['GPG_AGENT_INFO']
     if  gpg_agent_info:
