@@ -1165,7 +1165,7 @@ def verify_signature(signature, DIR):
   
   if VERBOSE > 2 or p.returncode:
     for j in open(temp_name):
-      logger.debug('   GPG> '+j)
+      logger.debug('   GPG> '+j.rstrip())
   
   os.unlink(temp_name)
   
