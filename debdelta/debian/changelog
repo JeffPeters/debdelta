@@ -1,7 +1,7 @@
 debdelta (0.68) unstable; urgency=medium
 
   * add 2027 signing key
-  * support https (Closes: #901813).
+  * support https. Thanks Steven De Herdt  (Closes: #901813).
   * Do not uri-quote deb package names, closes
     "Difference in current filename packaging conventions leads
     to downloads being ignored by apt", thanks to Yuri D'Elia, Luke Ross
@@ -10,8 +10,12 @@ debdelta (0.68) unstable; urgency=medium
      but debs are correct.", thanks to R S Chakravarti
     (Closes: #1012735).
   * do not double-url-quote, properly download debs (when deb-policy permits)
+  * include the non-free-firmware component;
+    thanks to Ben Morris (Closes: #1030391).
+  * depends on gnupg not gnupg2
+    Thanks  Andreas Metzler (Closes: #1055398).
 
- --
+ -- A Mennucc1 <mennucc1@debian.org>  Sat, 02 Dec 2023 13:59:32 +0100
 
 debdelta (0.67) unstable; urgency=medium
 
