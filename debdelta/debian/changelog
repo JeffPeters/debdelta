@@ -1,6 +1,7 @@
 debdelta (0.68) unstable; urgency=medium
 
   * add 2027 signing key
+  * support https (Closes: #901813).
 
  --
 

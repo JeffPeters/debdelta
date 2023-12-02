@@ -376,7 +376,7 @@ else:
 
     elif o == '--forensic'  :
       FORENSIC = v
-      if FORENSIC[:4] == 'http':
+      if FORENSIC.startswith('http'):
         try:
           import poster
         except:
@@ -1676,7 +1676,7 @@ def forensic_send(f,forensic=FORENSIC):
       args="to=%s,subject=delta_failures,attachment='file:///%s'" % (email,temptar)
       subprocess.call([forensic,'-compose',args])
     return
-  elif forensic[:4] == 'http':
+  elif forensic.startswith('http'):
     logger.warning(_("There were faulty deltas.")+' '+_('Sending logs to server.'))
     temptar=tempfile.mktemp(suffix='.tgz')
     tar=tarfile.open(name=temptar,mode='w:gz')
@@ -4947,7 +4947,7 @@ def delta_upgrade_(args):
         #puke( 'Exception while accessing',uri)
         return DebDeltaError('for %s : %s'%(uri,e)), None, None, None
     ###### python2 code
-    if uri_p.scheme == 'http' and not proxies:
+    if uri_p.scheme in ('http','https') and not proxies:
       #use persistent http connections
       conn=conn_by_url(uri)
       if conn == None :
@@ -4975,7 +4975,7 @@ def delta_upgrade_(args):
           mainexitcodes.append(1)
           return e, None, None, None
     else: #use urllib2
-      if uri_p.scheme == 'http':
+      if uri_p.scheme in ('http','https'):
         a=[copy(z) for z in uri_p]
         a[2]=urlquote(uri_p[2])
         uri=urlunparse(a)
@@ -5015,7 +5015,7 @@ def delta_upgrade_(args):
       conn=conn_by_url(uri)
       if conn == None: return None
       uri_p=urlparse(uri)
-      assert(uri_p[0] == 'http')
+      assert(uri_p[0] in ('http','https'))
       conn.request("HEAD", urlquote(uri_p[2]),headers=HTTP_USER_AGENT)
       r = conn.getresponse()
       r.read()
@@ -5027,7 +5027,7 @@ def delta_upgrade_(args):
       "in case of connection error, returns the (error, None, None, None) ; otherwise returns (status,len,outname,complete)"
       #download
       uri_p=urlparse(uri)
-      assert(uri_p[0] == 'http')
+      assert(uri_p[0] in ('http', 'https'))
       re=copy(HTTP_USER_AGENT)
       re["Range"] =  "bytes=0-10239"
       complete=False
@@ -5266,7 +5266,7 @@ def delta_upgrade_(args):
         continue
 
       a=urlparse(delta_uri_base)
-      assert(a[0] == 'http')
+      assert(a[0] in ('http', 'https'))
 
       #delta name
       delta_name = delta_base_name(p.shortname, installed_version,
@@ -5310,28 +5310,28 @@ def delta_upgrade_(args):
       if status == 404: 
         not_available_deltas.append(p.name)
         # check if delta is too big
-        if uri[:7] == 'http://' and not proxies  and 200 == test_uri(uri+'-too-big'): # FIXME support ftp or proxies
+        if uri.startswith('http') and not proxies  and 200 == test_uri(uri+'-too-big'): # FIXME support ftp or proxies
           logger.info(_('Delta is too big:')+' '+delta_name)
           if 'b' in DEB_POLICY:
             no_delta.append( (deb_uri, newdeb) )
           elif VERBOSE > 1 : logger.debug('  No deb-policy "b", no download of %r',deb_uri)
           continue
         # check if delta is queued in the server but not yet done
-        if uri[:7] == 'http://' and not proxies  and 200 == test_uri(uri+'-queued'): # FIXME support ftp or proxies
+        if uri.startswith('http') and not proxies  and 200 == test_uri(uri+'-queued'): # FIXME support ftp or proxies
           logger.info(_('Delta is not yet ready in the server:')+' '+delta_name)
           if 'q' in DEB_POLICY:
             no_delta.append( (deb_uri, newdeb) )
           elif VERBOSE > 1 : logger.debug('  No deb-policy "q", no download of %r',deb_uri)
           continue
         #check if delta failed upstream
-        if uri[:7] == 'http://' and not proxies and 200 ==  test_uri(uri+'-fails'): # FIXME support ftp or proxies
+        if uri.startswith('http') and not proxies and 200 ==  test_uri(uri+'-fails'): # FIXME support ftp or proxies
           logger.info(_('Delta missing, server failed to create it:')+' '+delta_name)
           if 'f' in DEB_POLICY:
             no_delta.append( (deb_uri, newdeb) )
           elif VERBOSE > 1 : logger.debug('  No deb-policy "f", no download of %r',deb_uri)
           continue
         ### FIXME the server is not generating these stamps !
-        #if  uri[:7] == 'http://' and not proxies and newsize <=  2 * MIN_DEB_SIZE : # check only on small packages
+        #if uri.startswith('http') and not proxies and newsize <=  2 * MIN_DEB_SIZE : # check only on small packages
         #  smallstatus = test_uri(uri+'-smalldeb')
         #  if smallstatus == 200: ETC ETC
         ###
