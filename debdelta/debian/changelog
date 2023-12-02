@@ -2,6 +2,13 @@ debdelta (0.68) unstable; urgency=medium
 
   * add 2027 signing key
   * support https (Closes: #901813).
+  * Do not uri-quote deb package names, closes
+    "Difference in current filename packaging conventions leads
+    to downloads being ignored by apt", thanks to Yuri D'Elia, Luke Ross
+    (Closes: #1003824).
+    "debdelta-upgrade changes filenames; replaces [...]
+     but debs are correct.", thanks to R S Chakravarti
+    (Closes: #1012735).
 
  --
 

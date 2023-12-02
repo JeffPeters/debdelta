@@ -5251,7 +5251,7 @@ def delta_upgrade_(args):
           break
       if newdeb == None:
         continue
-      newdeb = DEB_DIR+'/'+newdebs[-1]
+      newdeb = DEB_DIR+'/'+newdebs[0]
       
       if VERBOSE > 1 : logger.debug('  Looking for a delta for %s from %s to %s ', p.name, installed_version, candidate_version)
       delta_uri_base=delta_uri_from_config(config,
