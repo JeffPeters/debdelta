@@ -4919,9 +4919,6 @@ def delta_upgrade_(args):
     uri_p=urlparse(uri)
     ###### python3 code
     if requests and uri_p.scheme in ('http','https') :
-        a=[copy(z) for z in uri_p]
-        a[2]=urlquote(uri_p[2])
-        uri=urlunparse(a)
         try:
           req = requests_session.get(uri, headers=headers, stream = True)
           req.read = req.raw.read

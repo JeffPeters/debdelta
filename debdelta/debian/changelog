@@ -9,6 +9,7 @@ debdelta (0.68) unstable; urgency=medium
     "debdelta-upgrade changes filenames; replaces [...]
      but debs are correct.", thanks to R S Chakravarti
     (Closes: #1012735).
+  * do not double-url-quote, properly download debs (when deb-policy permits)
 
  --
 
