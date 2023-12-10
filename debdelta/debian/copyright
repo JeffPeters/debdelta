@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: debdelta
-Source: git://anonscm.debian.org/collab-maint/debdelta.git
+Source: https://salsa.debian.org/mennucc1/debdelta
 
 Files: *
 Copyright: 2006-2017 Andrea Mennucci.
