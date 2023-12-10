@@ -1,3 +1,9 @@
+debdelta (0.69) unstable; urgency=medium
+
+  * bump standards version to 4.6.2 (no changes)
+
+ --
+
 debdelta (0.68) unstable; urgency=medium
 
   * add 2027 signing key
