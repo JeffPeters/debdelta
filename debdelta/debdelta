@@ -1304,13 +1304,13 @@ def get_info_fast(delta):
   if len(s) != 60 :
     logger.warning('(Warning, cannot get info from  truncated: '+delta+' )')
     return None
-  if s[:4] != 'info':
+  if s[:4] != b'info':
     #old style debdelta, with info in patch.sh
     if VERBOSE > 1 : logger.warning('  (Warning, cannot get info from old style: '+delta+' )')
     return None
   ##parse ar segment
   ## see /usr/include/ar.h
-  if s[-2:] != '`\n' :
+  if s[-2:] != b'`\n' :
     logger.warning('(Warning, cannot get info from  '+delta+' , format not known)')
     return None
   l=int(s[ -12:-2 ])
