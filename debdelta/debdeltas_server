@@ -369,18 +369,27 @@ def mirrors_binary_Packages(mirrorsdir=mirrorsdir,archs=architectures):
     for m in os.listdir(mirrorsdir):
         if os.path.isdir(join(mirrorsdir,m)) and m not in mirrors_exclude:
             distrib[m]={}
-    # iterate to find distributions in mirrors
+    # iterate to find distributions in mirrors, usually 'debian', 'debian-security', 'debian-buildd' , 'debian-debug'
     for m in distrib:
-        magic = '/updates' if m[-8:] == 'security' else ''
         # iterate on distribution codenames, such as wheezy, jessie
-        for j in os.listdir(join(mirrorsdir,m,'dists')) :
-            mj=join(mirrorsdir,m,'dists',j)
-            if ( os.path.isdir(mj) and not os.path.islink(mj)):
-                if (m,j) in codenames_exclude:
-                    logger.debug('Skipping %r in %r', j, m)
-                else:
-                    distrib[m][j+magic] = {}
-                #print 'dist',m,j,magic,mj
+        dm=join(mirrorsdir,m,'dists')
+        for j in os.listdir(dm) :
+            if (m,j) in codenames_exclude:
+                logger.debug('Skipping %r in %r', j, m)
+                continue
+            dmj=join(dm,j)
+            if  ( not os.path.isdir(dmj)) or os.path.islink(dmj):
+                continue
+            ## too complex
+            # if os.path.isdir(dmju) and not ( os.path.islink(dmju) and os.readlink(dmju) in (b'.', '.') ):
+            magic = '' 
+            if not os.path.isfile(join(dmj, 'Release')):
+                dmj = join(dmj, 'updates')
+                magic = '/updates'
+            if not os.path.isfile(join(dmj, 'Release')):
+                logger.error('Does not contain "Release" ; %r', dmj)
+                continue
+            distrib[m][j+magic] = {}
     # iterate to find binary package lists in distributions in mirrors
     for m in distrib:
         for d in distrib[m]:
