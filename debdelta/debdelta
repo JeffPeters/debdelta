@@ -5098,7 +5098,7 @@ def delta_upgrade_(args):
         return download_uri(responseheaders['location'], outname, conn_time, len_downloaded, statusdb)
       if not ( status == None or status == 200 or ( status == 206 and l != None ) ):
         if VERBOSE :
-          logger.warning('Connection problem, status:'+str(status)+' msg:'+str(message)+' uri:'+str(uri))
+          logger.warning('Connection problem, status %r msg: %r uri: %r', status, message, uri)
         r.read()
         r.close()
         return
@@ -5243,7 +5243,7 @@ def delta_upgrade_(args):
       for newdeb in newdebs:
         if os.path.exists(DEB_DIR+'/'+newdeb) or \
             os.path.exists('/var/cache/apt/archives/'+newdeb):
-          if VERBOSE > 1 : logger.debug('  Already downloaded: %r %r',p.name,candidate_version)
+          if VERBOSE > 1 : logger.debug('  Already downloaded %r %r as %r',p.name,candidate_version,newdeb)
           newdeb=None
           break
       if newdeb == None:
