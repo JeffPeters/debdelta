@@ -335,7 +335,11 @@ def LiPa_find_extension(dirname, li):
     assert len(li) == 6
     if not os.path.isdir( join(dirname, *(li[:5])) ):
         # some suites (e.g.  kfreebsd) do not contain some arches (e.g. amd64)
-        logger.warning("No directory for %r %r" ,  dirname, li)
+        if 'non-free-firmware' in li :
+            # it is quite new, no sense in warning for it
+            logger.debug("No directory for %r %r" ,  dirname, li)
+        else:
+            logger.warning("No directory for %r %r" ,  dirname, li)
         return None
     a=join(*li)
     for e in ('.xz','.bz2','.gz',''):
