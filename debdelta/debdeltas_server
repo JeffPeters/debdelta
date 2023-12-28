@@ -618,19 +618,19 @@ def iter_backups_for_deltas(bPd=backup_Packages_dir):
                     logger.warning(' missing %s for %r',lb[bj],p)
                     bj = bj + 1
         
-        if p[0][-8:]=='security':
+        if p[0].endswith('-security'):
             # for security, add also the corresponding stable packages
             q=list(copy(p))
-            q[0]=p[0][:-9]
-            if p[2][-8:] == '/updates':
-                q[2] = p[2][:-8]
+            q[0] = q[0].removesuffix('-security')
+            q[2] = q[2].removesuffix('/updates')
+            q[2] = q[2].removesuffix('-security')
             for b in (lb[0],): #currently we add only the most recent one
                 a=LiPa_find_extension(join(bPd,b),q)
                 if a:
-                    logger.info('and on as well %r %r',b,a)
+                    logger.info('and on as well non-security %r %r',b,a)
                     older.append((b,a))
                 else:
-                    logger.warning(' missing  %r %r',b,q)
+                    logger.warning(' missing non-security %r %r',b,q)
         # todo, for stable-updates we should also add stable
         if older:
             count = 0
