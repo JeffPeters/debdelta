@@ -335,11 +335,22 @@ def LiPa_find_extension(dirname, li):
     assert len(li) == 6
     if not os.path.isdir( join(dirname, *(li[:5])) ):
         # some suites (e.g.  kfreebsd) do not contain some arches (e.g. amd64)
-        if 'non-free-firmware' in li :
-            # it is quite new, no sense in warning for it
-            logger.debug("No directory for %r %r" ,  dirname, li)
-        else:
-            logger.warning("No directory for %r %r" ,  dirname, li)
+        # and non-free-firmware is mostly absent in 2023
+        try:
+            a = join(dirname, *(li[:3]), 'Release')
+            rele =  debian_deb822.Release(open(a))
+            c =  rele['Components'].split()
+            c = [j.removeprefix('updates/') for j in c]
+            if li[3] not in c:
+                logger.debug("No such component %r %r, available %r" , dirname, li, c)
+                return None
+            c =  rele['Architectures'].split()
+            if li[4][7:] not in c:
+                logger.debug("No such architecture %r %r, available %r" , dirname, li, c)
+                return None
+        except Exception as E:
+            logger.error("No directory for %r %r , and %r on %r" ,  dirname, li, E, a)
+        logger.error("No directory for %r %r" ,  dirname, li)
         return None
     a=join(*li)
     for e in ('.xz','.bz2','.gz',''):
