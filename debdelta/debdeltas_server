@@ -37,7 +37,7 @@ Possible commands:
 #License: GNU GPL v2 
 
 
-import os, sys, atexit, tempfile
+import os, sys, atexit, tempfile, fnmatch, re
 from os.path import join
 from copy import copy
 import time, string, shutil, pickle, lockfile, logging, logging.handlers
@@ -365,6 +365,11 @@ def mirrors_binary_Packages(mirrorsdir=mirrorsdir,archs=architectures):
      (note that codename may be 'wheezy/updates' )
     the last one contains the LiPa"""
     distrib={}
+    # precompile
+    CE = [ (re.compile( fnmatch.translate(a)) , re.compile(fnmatch.translate(b)) )\
+            for a,b in codenames_exclude ]
+    def match(m, j):
+        return any ( ( a.match(m) and b.match(j)) for a, b in CE)
     #iterate to list mirrors
     for m in os.listdir(mirrorsdir):
         if os.path.isdir(join(mirrorsdir,m)) and m not in mirrors_exclude:
@@ -374,7 +379,7 @@ def mirrors_binary_Packages(mirrorsdir=mirrorsdir,archs=architectures):
         # iterate on distribution codenames, such as wheezy, jessie
         dm=join(mirrorsdir,m,'dists')
         for j in os.listdir(dm) :
-            if (m,j) in codenames_exclude:
+            if match(m,j) :
                 logger.debug('Skipping %r in %r', j, m)
                 continue
             dmj=join(dm,j)
