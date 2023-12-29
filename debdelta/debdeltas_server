@@ -647,6 +647,18 @@ def iter_backups_for_deltas(bPd=backup_Packages_dir):
                     older.append((b,a))
                 else:
                     logger.warning(' missing non-security %r %r',b,q)
+        #
+        if p[2].endswith('-backports'):
+            # for backports, add also the corresponding stable packages
+            q=list(copy(p))
+            q[2] = q[2].removesuffix('-backports')
+            for b in (lb[0],): #currently we add only the most recent one
+                a=LiPa_find_extension(join(bPd,b),q)
+                if a:
+                    logger.info('and on as well non-backport %r %r',b,a)
+                    older.append((b,a))
+                else:
+                    logger.warning(' missing non-backport %r %r',b,q)
         # todo, for stable-updates we should also add stable
         if older:
             count = 0
