@@ -676,8 +676,9 @@ def untar_control_in_deb(ar_ls):
       c=a
   assert c
   # command for tar
-  bdb={b'.gz':'-z', b'.bz2':'-j', b'.lzma':'--lzma', b'.xz':'-J'}
+  bdb={b'.gz':'-z', b'.bz2':'-j', b'.lzma':'--lzma', b'.xz':'-J', b'.zst':'--use-compress-program=unzstd'}
   zdb={b'.gz' : ['gzip','-cd'], b'.bz2': ['bzip2','-cd'],
+      b'.zst' : ['zstdmt', '-d', '--stdout'],
       b'.lzma':['unlzma','-c'], b'.xz': ['unxz','-c'] }  
   return c,  bdb.get(c[11:]), zdb.get(c[11:])
 
@@ -2592,6 +2593,9 @@ def do_delta_(olddeb, newdeb, delta, TD, forensic_file=None, info=[]):
           self.fd.write('xz -c')
         else:
           self.fd.write('xz -c '+self.xz_parameters)
+      elif cn == '.zst' :
+        info_append('needs-zstd')
+        self.fd.write('zstdmd -19 -long')
       else: assert(0)
   
     def start_member(self, ar_line, newname, extrachar):
@@ -2673,7 +2677,7 @@ def do_delta_(olddeb, newdeb, delta, TD, forensic_file=None, info=[]):
       for a in l :
         if a[:12] == b'control.tar.':
           f=a
-      b={b'.gz':'-z',  b'.xz':'-J',  b'.bz2':'-j'}.get(f[11:])
+      b={b'.gz':'-z',  b'.xz':'-J',  b'.bz2':'-j', b'.zst':'--use-compress-program=unzstd', b'':'' }.get(f[11:])
       assert b != None
       system(('ar','p',TD+o+'.file',f,'|','tar',b,'-xf','-','-C',TD+o+'/CONTROL'),TD)
       ## scan control
@@ -2831,6 +2835,11 @@ def do_delta_(olddeb, newdeb, delta, TD, forensic_file=None, info=[]):
       system(('unxz',f),TD)
       f=f[:-3]
       c='.xz'
+    elif f[-4:] == '.zst' :
+      info_append('needs-zstd')
+      system(('unzstd',f),TD)
+      f=f[:-4]
+      c='.zst'
     else: raise NotImplementedError(' dont know how to decompress '+repr(f))
     return (f,c)
 
@@ -3152,9 +3161,13 @@ def do_delta_(olddeb, newdeb, delta, TD, forensic_file=None, info=[]):
     shutil.copyfileobj(o,z)
     z.flush()
     if isinstance(o,PopenPipe): o.close()
-    b=subprocess.Popen(['xz','-vv','--robot','--list',z.name],stdout=subprocess.PIPE,
-                       **Popen_args)
-    for a in b.stdout:
+    # Refactor to make work, tested with python3, did not test python2
+    b=subprocess.Popen(['xz','-vv','--robot','--list',z.name],stdout=subprocess.PIPE)
+    while True:
+      a = b.stdout.readline()
+      if not a:
+        break
+      a=bytes2str(a)
       a=a.rstrip('\n')
       a=str.split(a,'\t')
       if a[0]=='block':
@@ -3707,6 +3720,7 @@ def do_delta_(olddeb, newdeb, delta, TD, forensic_file=None, info=[]):
     if p==None:
       p=os.path.splitext(name)[1]
     db={b'.gz' : ['gzip','-cd'], b'.bz2': ['bzip2','-cd'],
+        b'.zst' : ['zstdmt', '-d', '--stdout'],
         b'.lzma':['unlzma','-c'], b'.xz': ['unxz','-c'] }
     assert p==False or p == b'.tar' or p in db 
     if p==b'.tar' or p==False:
@@ -3761,7 +3775,7 @@ def do_delta_(olddeb, newdeb, delta, TD, forensic_file=None, info=[]):
           raise DebDeltaError('Cannot guess GZ parameters for new %r' % name)
       del xd
       x=None
-      for oldext in (b'', b'.gz', b'.bz2', b'.lzma', b'.xz'):
+      for oldext in (b'', b'.gz', b'.bz2', b'.lzma', b'.xz', b'.zst'):
         if basename+oldext in ar_list_old:
           x=decompress_pipe_from_ar('OLD',basename+oldext)
           break
